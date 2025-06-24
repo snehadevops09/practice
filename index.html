@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wikipedia Clone</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        html {
+            font-family: sans-serif;
+        }
+        .sidebar {
+            width: 200px;
+            transition: transform 0.3s;
+        }
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                position: fixed;
+                z-index: 100;
+                background: white;
+                height: 100%;
+            }
+            .sidebar.active {
+                transform: translateX(0);
+            }
+        }
+        .search-dropdown {
+            display: none;
+            position: absolute;
+            background: white;
+            border: 1px solid #ccc;
+            width: 100%;
+            z-index: 10;
+        }
+        .search-container:hover .search-dropdown {
+            display: block;
+        }
+        .toc {
+            background: #f8f9fa;
+            border: 1px solid #a2a9b1;
+            display: table;
+            font-size: 95%;
+            padding: 1em;
+        }
+        .toc-title {
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <!-- Header -->
+    <header class="bg-white shadow">
+        <div class="container mx-auto px-4 py-3 flex items-center justify-between">
+            <!-- Logo and basic controls -->
+            <div class="flex items-center space-x-4">
+                <button id="menu-toggle" class="md:hidden text-gray-700">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="3" y1="12" x2="21" y2="12"></line>
+                        <line x1="3" y1="6" x2="21" y2="6"></line>
+                        <line x1="3" y1="18" x2="21" y2="18"></line>
+                    </svg>
+                </button>
+                <div class="flex items-center">
+                    <div class="bg-gray-200 rounded-md px-2 py-1">
+                        <span class="text-xl font-bold">W</span>
+                        <span class="text-xl text-gray-600">IKI</span>
+                    </div>
+                    <span class="ml-2 text-sm hidden md:block">The Free Encyclopedia</span>
+                </div>
+            </div>
+
+            <!-- Search bar -->
+            <div class="search-container relative w-1/2">
+                <div class="relative">
+                    <input type="text" id="search-input" class="w-full border border-gray-300 rounded-md py-2 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Search Wikipedia">
+                    <div class="absolute inset-y-0 right-0 flex items-center pr-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        </svg>
+                    </div>
+                </div>
+                <div class="search-dropdown mt-1 rounded-md shadow-lg">
+                    <div class="p-2 text-gray-500">Search for pages containing...</div>
+                    <div class="p-2 hover:bg-gray-100 cursor-pointer flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2">
+                            <polygon points="3 11 22 2 13 21 11 13 3 11"></polygon>
+                        </svg>
+                        JavaScript - Programming language
+                    </div>
+                    <div class="p-2 hover:bg-gray-100 cursor-pointer flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2">
+                            <polygon points="3 11 22 2 13 21 11 13 3 11"></polygon>
+                        </svg>
+                        JavaScript (disambiguation)
+                    </div>
+                </div>
+            </div>
+
+            <!-- User controls -->
+            <div class="flex items-center space-x-4">
+                <a href="#" class="text-blue-600 text-sm hidden md:block">Create account</a>
+                <a href="#" class="text-blue-600 text-sm hidden md:block">Log in</a>
+                <button class="text-gray-700">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="3"></circle>
+                        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9z"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <div class="flex">
+        <!-- Sidebar -->
+        <aside class="sidebar bg-white min-h-screen shadow-md p-4">
+            <nav>
+                <h3 class="font-bold text-lg mb-2">Navigation</h3>
+                <ul class="space-y-1">
+                    <li><a href="#" class="text-blue-600 hover:underline">Main Page</a></li>
+                    <li><a href="#" class="text-blue-600 hover:underline">Contents</a></li>
+                    <li><a href="#" class="text-blue-600 hover:underline">Featured Content</a></li>
+                    <li><a href="#" class="text-blue-600 hover:underline">Current Events</a></li>
+                    <li><a href="#" class="text-blue-600 hover:underline">Random Article</a></li>
+                </ul>
+
+                <h3 class="font-bold text-lg mt-4 mb-2">Contribute</h3>
+                <ul class="space-y-1">
+                    <li><a href="#" class="text-blue-600 hover:underline">Help</a></li>
+                    <li><a href="#" class="text-blue-600 hover:underline">Learn to Edit</a></li>
+                    <li><a href="#" class="text-blue-600 hover:underline">Community Portal</a></li>
+                    <li><a href="#" class="text-blue-600 hover:underline">Recent Changes</a></li>
+                    <li><a href="#" class="text-blue-600 hover:underline">Upload File</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 p-6">
+            <div class="max-w-4xl mx-auto">
+                <div class="flex items-center mb-6">
+                    <h1 class="text-3xl font-bold" id="article-title">JavaScript</h1>
+                    <div class="ml-4 flex space-x-2">
+                        <button class="bg-blue-600 text-white px-3 py-1 rounded-md text-sm">Article</button>
+                        <button class="bg-gray-200 text-gray-700 px-3 py-1 rounded-md text-sm hover:bg-gray-300">Talk</button>
+                    </div>
+                </div>
+
+                <div class="flex">
+                    <div class="flex-1">
+                        <!-- Top action buttons -->
+                        <div class="flex items-center justify-between mb-4 text-sm">
+                            <div>
+                                <span class="text-gray-600">From Wikipedia, the free encyclopedia</span>
+                            </div>
+                            <div class="flex space-x-4">
+                                <a href="#" class="text-blue-600 hover:underline">Article</a>
+                                <a href="#" class="text-blue-600 hover:underline">Talk</a>
+                                <a href="#" class="text-blue-600 hover:underline">Edit</a>
+                                <a href="#" class="text-blue-600 hover:underline">History</a>
+                            </div>
+                        </div>
+
+                        <!-- Table of Contents -->
+                        <div class="toc float-right ml-4 mb-4">
+                            <div class="toc-title">Contents</div>
+                            <ol class="pl-5 list-decimal">
+                                <li><a href="#history" class="text-blue-600 hover:underline">History</a></li>
+                                <li><a href="#features" class="text-blue-600 hover:underline">Features</a></li>
+                                <ol class="pl-5 list-decimal">
+                                    <li><a href="#universal-support" class="text-blue-600 hover:underline">Universal support</a></li>
+                                    <li><a href="#imperative" class="text-blue-600 hover:underline">Imperative and structured</a></li>
+                                </ol>
+                                <li><a href="#syntax" class="text-blue-600 hover:underline">Syntax</a></li>
+                                <li><a href="#security" class="text-blue-600 hover:underline">Security</a></li>
+                                <li><a href="#see-also" class="text-blue-600 hover:underline">See also</a></li>
+                                <li><a href="#references" class="text-blue-600 hover:underline">References</a></li>
+                            </ol>
+                        </div>
+
+                        <!-- Article content -->
+                        <p class="mb-4">
+                            <b>JavaScript</b> (<span class="text-blue-600">/ˈdʒɑːvəˌskrɪpt/</span>), often abbreviated as <b>JS</b>, is a programming language that conforms to the ECMAScript specification. JavaScript is high-level, often just-in-time compiled, and multi-paradigm. It has curly-bracket syntax, dynamic typing, prototype-based object-orientation, and first-class functions.
+                        </p>
+                        <p class="mb-4">
+                            Alongside HTML and CSS, JavaScript is one of the core technologies of the World Wide Web. JavaScript enables interactive web pages and is an essential part of web applications. The vast majority of websites use it for client-side page behavior, and all major web browsers have a dedicated JavaScript engine to execute it.
+                        </p>
+
+                        <h2 class="text-2xl font-bold mt-8 mb-4 border-b border-gray-300 pb-2" id="history">History</h2>
+                        <p class="mb-4">
+                            JavaScript was created by Brendan Eich in 1995 during his time at Netscape Communications. It was inspired by Java, Scheme and Self. Netscape, for a time, made the best browser in the world and enjoyed market dominance.
+                        </p>
+
+                        <h2 class="text-2xl font-bold mt-8 mb-4 border-b border-gray-300 pb-2" id="features">Features</h2>
+                        <p class="mb-4">
+                            JavaScript is a versatile language that is constantly evolving. Some of its key features include:
+                        </p>
+
+                        <h3 class="text-xl font-bold mt-6 mb-2" id="universal-support">Universal support</h3>
+                        <p class="mb-4">
+                            All major web browsers support JavaScript by means of built-in engines (such as Google's V8 engine in Chrome) that execute the code on users' devices.
+                        </p>
+
+                        <h3 class="text-xl font-bold mt-6 mb-2" id="imperative">Imperative and structured</h3>
+                        <p class="mb-4">
+                            JavaScript supports much of the structured programming syntax from C (e.g., if statements, while loops, switch statements, etc.). One partial exception is scoping: JavaScript originally had only function scoping with var; block scoping was added in ECMAScript 2015 with the keywords let and const.
+                        </p>
+
+                        <h2 class="text-2xl font-bold mt-8 mb-4 border-b border-gray-300 pb-2" id="syntax">Syntax</h2>
+                        <p class="mb-4">
+                            The syntax of JavaScript is the set of rules that define a correctly structured JavaScript program.
+                        </p>
+                        <p class="mb-4">
+                            Here's a simple example of JavaScript code that displays "Hello, World!":
+                        </p>
+                        <div class="bg-gray-100 p-4 rounded-md mb-4">
+                            <code>console.log("Hello, World!");</code>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-gray-200 py-4">
+        <div class="max-w-4xl mx-auto px-6 text-sm text-gray-500">
+            <p>This page was last edited on 15 June 2023, at 14:32 (UTC).</p>
+            <p class="mt-2">Text is available under the <a href="#" class="text-blue-600 hover:underline">Creative Commons Attribution-ShareAlike License 3.0</a>; additional terms may apply. Wikipedia® is a registered trademark of the <a href="#" class="text-blue-600 hover:underline">Wikimedia Foundation, Inc.</a>, a non-profit organization.</p>
+            <div class="mt-4 flex flex-wrap gap-4">
+                <a href="#" class="text-blue-600 hover:underline">Privacy Policy</a>
+                <a href="#" class="text-blue-600 hover:underline">About Wikipedia</a>
+                <a href="#" class="text-blue-600 hover:underline">Disclaimers</a>
+                <a href="#" class="text-blue-600 hover:underline">Contact Wikipedia</a>
+                <a href="#" class="text-blue-600 hover:underline">Mobile View</a>
+                <a href="#" class="text-blue-600 hover:underline">Developers</a>
+                <a href="#" class="text-blue-600 hover:underline">Statistics</a>
+                <a href="#" class="text-blue-600 hover:underline">Cookie Statement</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Toggle mobile menu
+        document.getElementById('menu-toggle').addEventListener('click', function() {
+            document.querySelector('.sidebar').classList.toggle('active');
+        });
+
+        // Basic search functionality
+        document.getElementById('search-input').addEventListener('keypress', function(e) {
+
